@@ -16,6 +16,7 @@ PORT   STATE SERVICE
 80/tcp open  http
 
 lets start with enumerating with the webpage on the port 80. on the main page we find a mafialive solutions webisite. in the send us a mail section on the top of the page we find a possible entry for the hostname of the machine. as we know tryhackme's hostnames usually end with a .thm, this could possibly be the answer to our first question
+
 ![image1](https://github.com/realatharva15/archangel_writeup/blob/main/images/Screenshot%202026-01-16%20at%2012-59-29%20Wavefire.png)
 
 lets add this hostname to our /etc/hosts file
@@ -46,7 +47,9 @@ gobuster dir -u http://mafialive.thm -w /usr/share/wordlists/dirb/common.txt
 /server-status        (Status: 403) [Size: 278]
 
 lets navigate to the /robots.txt directory and find out if we can get any hints related to the page under development. the robots.txt says "User-agent: *
+
 ![image2](https://github.com/realatharva15/archangel_writeup/blob/main/images/Screenshot%202026-01-16%20at%2013-12-01%20.png)
+
 Disallow: /test.php". lets navigate to the /test.php directory. bingo! turns out that the /test.php directory is the page which is under development. now we submit this answer. now as we can see in the url, there is a "view" parameter which listing the directories inside /var. this is a classis LFI vulnerability.
 
 ```bash
@@ -60,11 +63,12 @@ here we can use the php filters to access sensitive files on the system in order
 http://mafialive.thm/test.php/?view=php://filter/convert.base64-encode/resource=/var/wwww/html/development_testing/test.php 
 ```
 ![testimage](https://github.com/realatharva15/archangel_writeup/blob/main/images/test.php.png)
+
 we use this to view the contents of the test.php file. the contents are encoded in base64 so we will use cyberchef to decode the program.
 
 ![image3](https://github.com/realatharva15/archangel_writeup/blob/main/images/Screenshot%202026-01-16%20at%2013-31-31%20From%20Base64%20-%20CyberChef.png)
 
-from the code we understand that there is some kind of sanitization which can block LFI to some extent. we can find a way around this inorder to access files like /etc/passwd on the system. 
+from the code we understand that there is some kind of sanitization which can block LFI to some extent. the flag2 is found in the comments of the php code.  we can find a way around this in order to access files like /etc/passwd on the system. 
 
 the php code goes like:
 ```bash
@@ -125,6 +129,7 @@ we will try using this payload. but wait, we still have to mention the /var/www/
 ```bash
 http://mafialive.thm/test.php?view=php://filter/convert.base64-encode/resource=/var/www/html/development_testing/..//..//..//..//etc/passwd
 ```
+
 ![image4](https://github.com/realatharva15/archangel_writeup/blob/main/images/bypassingsanitization.png)
 
 as you can see, we have successfully bypassed the sanitization! we can further decode the base64 encoded /etc/passwd file and find out information about the users on the system. there is a user named archangel on the system. maybe we can try to exfiltrate his id_rsa inside his home directory. if that is possible we would not even require to carry out RCE on the target machine. after some manual payloads either the current user (www-data) does not have the permissions to access archangel's id_rsa, or simply they do not exist on the system. whatever the reason be, it is clear that in order to get a shell on the system we will have to caryy out RCE.
@@ -139,6 +144,7 @@ we have injected the cmd parameter in the system, now lets test if the RCE is wo
 ```bash
 http://mafialive.thm/test.php?view=/var/www/html/development_testing/..//..//..//..//var/log/apache2/access.log&cmd=id
 ```
+
 as you can see in the image below we have sucessfully poisoned the logs and achieved RCE via LFI on the machine. lets use a reverseshell and setup a netcat listener in another terminal
 ![image5](https://github.com/realatharva15/archangel_writeup/blob/main/images/logpoisoning.png)
 
