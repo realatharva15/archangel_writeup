@@ -225,11 +225,10 @@ now its time to level up our game and get root access on the system. the linpeas
 ```bash
 strings /home/archangel/secret/backup
 ```
-we find a line in the binary which goes like this:
-```bash
-#huge vulnerability in the binary:
+we find a broken line in the binary which goes like this:
+
 cp /home/user/archangel/myfiles/* /opt/backupfiles
-```
+
 the reason why this is a major vulnerabulity is because it is not using the absolute path of the cp command i.e /bin/cp. this makes it easy for us to exploit this SUID as we can create our own malicous cp file which will spawn a shell when executed. 
 
 ```bash
