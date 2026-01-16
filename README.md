@@ -29,7 +29,7 @@ on accessing the website with the proper hostname, we find the flag1 of the ctf.
 #in your browser:
 http://mafialive.thm
 ```
-we submit the flag1 nad lets enumerate further. lets use gobuster to fuzz the hidden directories and find the page under development.
+we submit the flag1 and lets enumerate further. lets use gobuster to fuzz the hidden directories and find the page under development.
 
 ```bash
 gobuster dir -u http://mafialive.thm -w /usr/share/wordlists/dirb/common.txt
