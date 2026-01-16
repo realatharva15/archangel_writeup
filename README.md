@@ -1,8 +1,8 @@
 # Try Hack Me - Archangel
 # Author: Atharva Bordavekar
 # Difficulty: Easy
-# Points: 
-# Vulnerabilities:
+# Points: 210
+# Vulnerabilities: LFI, RCE via log poisoning, cronjob abuse, PATH hijacking
 
 # Phase 1 - Reconnaissance: 
 nmap scan:
