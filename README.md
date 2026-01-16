@@ -188,9 +188,9 @@ let me summarize the entire attack workflow with a flowchart which DeepSeek made
 ├─────────────────────────────────────────────────────────────┤
 │ Output: uid=33(www-data) gid=33(www-data) groups=33(www-data) │
 └─────────────────────────────────────────────────────────────┘
+```
 
 # Shell as www-data:
-```
 
 ```bash
 #first setup the netcat listner
